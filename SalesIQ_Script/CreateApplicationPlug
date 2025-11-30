@@ -1,0 +1,54 @@
+// ----- 1) Read inputs from session -----
+jobid = "";
+name = "";
+email = "";
+phone = "";
+resumeurl = "";
+if(session.get("jobid") != null)
+{
+	jobid = session.get("jobid").get("value");
+}
+if(session.get("name") != null)
+{
+	name = session.get("name").get("value");
+}
+if(session.get("email") != null)
+{
+	email = session.get("email").get("value");
+}
+if(session.get("phone") != null)
+{
+	phone = session.get("phone").get("value");
+}
+if(session.get("resumeurl") != null)
+{
+	resumeurl = session.get("resumeurl").get("value");
+}
+// ----- 2) Build body matching ApplicationCreate model -----
+// Backend expects keys: job_id, name, email, phone, resume_url
+body = Map();
+body.put("job_id",jobid);
+body.put("name",name);
+body.put("email",email);
+body.put("phone",phone);
+body.put("resume_url",resumeurl);
+// ----- 3) Headers -----
+headers_map = Map();
+headers_map.put("content-type","application/json");
+// ----- 4) Call backend: POST /applications -----
+api_response = invokeurl
+[
+	url :"/applications"
+	type :POST
+	body:body.toString()
+	headers:headers_map
+	connection:"talentbridge_backend"
+];
+// ----- 5) Plug output -----
+// Plug outputs (no underscores): appid, status, fitscore
+output = Map();
+output.put("appid",api_response.get("app_id"));
+output.put("status",api_response.get("status"));
+output.put("fitscore",api_response.get("fit_score"));
+// return the MAP
+return output;

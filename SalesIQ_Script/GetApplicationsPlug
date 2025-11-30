@@ -1,0 +1,21 @@
+// ----- 1) Read email from session -----
+email = "";
+if(session.get("email") != null)
+{
+	email = session.get("email").get("value");
+}
+// ----- 2) Query params -----
+params = Map();
+params.put("email",email);
+// ----- 3) Call backend: GET /applications/by-email?email=... -----
+api_response = invokeurl
+[
+	url :"/applications/by-email"
+	type :GET
+	parameters:params
+	connection:"talentbridge_backend"
+];
+// ----- 4) Plug output -----
+output = Map();
+output.put("applications",api_response);
+return output;

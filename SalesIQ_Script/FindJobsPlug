@@ -1,0 +1,69 @@
+// Output map
+response = Map();
+// ----- 1) Read inputs from session -----
+role = "";
+location = "";
+skills_str = "";
+minyoe = null;
+maxyoe = null;
+// Each plug input is available in session as a map: {"value": <actual_value>, ...}
+// role (String)
+if(session.get("role") != null)
+{
+	role = session.get("role").get("value");
+}
+// location (String)
+if(session.get("location") != null)
+{
+	location = session.get("location").get("value");
+}
+// skills (String, comma-separated)
+if(session.get("skills") != null)
+{
+	skills_str = session.get("skills").get("value");
+}
+// minyoe (Number)
+if(session.get("minyoe") != null)
+{
+	minyoe = session.get("minyoe").get("value");
+}
+// maxyoe (Number)
+if(session.get("maxyoe") != null)
+{
+	maxyoe = session.get("maxyoe").get("value");
+}
+// ----- 2) Convert skills string -> List<String> -----
+skills_list = List();
+if(skills_str != null && skills_str != "")
+{
+	// Deluge: use toList("<separator>") instead of split()
+	skills_array = skills_str.toList(",");
+	for each  s in skills_array
+	{
+		skills_list.add(s.trim());
+	}
+}
+// ----- 3) Build filters map to match FastAPI JobSearchFilters -----
+filters = Map();
+filters.put("role",role);
+filters.put("skills",skills_list);
+// NOTE: Plug inputs are minyoe/maxyoe, but backend expects min_yoe/max_yoe
+filters.put("min_yoe",minyoe);
+filters.put("max_yoe",maxyoe);
+filters.put("location",location);
+// ----- 4) Call backend: POST /jobs/search -----
+// Tell backend we’re sending JSON
+headers_map = Map();
+headers_map.put("content-type","application/json");
+// Deluge: when using body, send a STRING
+api_response = invokeurl
+[
+	url :"/jobs/search"
+	type :POST
+	body:filters.toString()
+	headers:headers_map
+	connection:"talentbridge_backend"
+];
+// ----- 5) Set plug output -----
+response.put("jobs",api_response);
+return response;

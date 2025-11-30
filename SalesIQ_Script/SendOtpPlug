@@ -1,0 +1,26 @@
+// ----- 1) Read phone from session -----
+phone = "";
+if(session.get("phone") != null)
+{
+	phone = session.get("phone").get("value");
+}
+// ----- 2) Build body -----
+body = Map();
+body.put("phone",phone);
+body.put("channel","sms");
+// ----- 3) Headers -----
+headers_map = Map();
+headers_map.put("content-type","application/json");
+// ----- 4) Call backend: POST /otp/send -----
+api_response = invokeurl
+[
+	url :"/otp/send"
+	type :POST
+	body:body.toString()
+	headers:headers_map
+	connection:"talentbridge_backend"
+];
+// ----- 5) Plug output -----
+output = Map();
+output.put("success",api_response.get("success"));
+return output;
